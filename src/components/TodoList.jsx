@@ -2,17 +2,11 @@ import React from "react";
 
 import { TodoItem } from "./TodoItem";
 
-class TodoList extends React.Component {
-  _renderTodos() {
-    const { todos } = this.props;
-    return map(todos, (todo, index) => {
-      return <TodoItem key={index} id={index} {...todo} />;
-    });
-  }
+export const TodoList = ({ todos, ...props }) => {
+  const renderTodos = () =>
+    todos.map((todo, index) => (
+      <TodoItem key={index} id={index} {...todo} {...props} />
+    ));
 
-  render() {
-    return <ul className="list-group todo-list">{this._renderTodos()}</ul>;
-  }
-}
-
-export default TodoList;
+  return <ul className="list-group todo-list">{renderTodos()}</ul>;
+};
