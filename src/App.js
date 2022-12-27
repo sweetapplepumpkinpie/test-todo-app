@@ -1,79 +1,72 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 
 import { TodoList } from "./components/TodoList";
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+export const App = () => {
+  const [state, setState] = useState({ todos: [], title: "" });
 
-    this.state = {
-      title: "",
-      todos: [],
-    };
-
-    this._onChangeTitle = this._onChangeTitle.bind(this);
-    this._onClickAdd = this._onClickAdd.bind(this);
-    this._onEnterPressAdd = this._onEnterPressAdd.bind(this);
-    this._onCompleteTodo = this._onCompleteTodo.bind(this);
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     const todos = localStorage.getItem("et-todos");
 
     if (!todos) {
       return;
     }
 
-    this.setState({
+    setState({
       todos: JSON.parse(todos),
     });
-  }
+  }, []);
 
-  componentDidUpdate() {
-    localStorage.setItem("et-todos", JSON.stringify(this.state.todos));
-  }
+  useEffect(() => {
+    localStorage.setItem("et-todos", JSON.stringify(state.todos));
+  }, [state.todos]);
 
-  _onCompleteTodo(id) {
-    const { todos } = this.state;
+  const _onCompleteTodo = (id) => {
+    const { todos } = state;
 
     todos[id].complete = !todos[id].complete;
-
-    this.setState({
-      todos,
+    setState({
+      ...state,
+      todos: [...todos],
     });
-  }
+  };
 
-  _onChangeTitle(event) {
-    const target = event.target;
-    const value = target.value;
-
-    this.setState({
+  const _onChangeTitle = ({ target: { value } }) => {
+    setState({
+      ...state,
       title: value,
     });
-  }
+  };
 
-  _onEnterPressAdd(event) {
+  const _onEnterPressAdd = (event) => {
     if (13 === event.keyCode) {
-      this._onClickAdd();
+      _onClickAdd();
     }
-  }
+  };
 
-  _onClickAdd(event) {
-    const { title, todos } = this.state;
+  const _onClickAdd = () => {
+    const { title, todos } = state;
 
     todos.push({
       title,
-      compete: false,
+      complete: false,
     });
 
-    this.setState({
+    setState({
       title: "",
-      todos,
+      todos: [...todos],
     });
-  }
+  };
 
-  _renderHeader() {
-    const { title } = this.state;
+  const _onDeleteTodo = (id) => {
+    setState({
+      ...state,
+      todos: [...state.todos.filter((todo, index) => index !== id)],
+    });
+  };
+
+  const _renderHeader = () => {
+    const { title } = state;
 
     return (
       <div className="todos-app-header card-header">
@@ -84,15 +77,15 @@ class App extends Component {
             name="title"
             placeholder="What do you need to do?"
             className="form-control add-new-todo"
-            onChange={this._onChangeTitle}
-            onKeyDown={this._onEnterPressAdd}
-            value={title}
+            onChange={_onChangeTitle}
+            onKeyDown={_onEnterPressAdd}
+            value={title || ""}
           />
           <div className="input-group-append">
             <button
               className="btn btn-success"
               type="button"
-              onClick={this._onClickAdd}
+              onClick={_onClickAdd}
             >
               <span
                 className=""
@@ -108,30 +101,24 @@ class App extends Component {
         </div>
       </div>
     );
-  }
+  };
 
-  render() {
-    const { todos } = this.state;
-
-    return (
-      <div className="container">
-        <div className="row">
-          <div className="col col-md-6 offset-md-3 mt-2">
-            <div className="todos-app card">
-              {this._renderHeader()}
-              <div className="card-body">
-                <TodoList
-                  todos={todos}
-                  onComplete={this._onCompleteTodo}
-                  onDelete={this._onDeleteTodo}
-                />
-              </div>
+  return (
+    <div className="container">
+      <div className="row">
+        <div className="col col-md-6 offset-md-3 mt-2">
+          <div className="todos-app card">
+            {_renderHeader()}
+            <div className="card-body">
+              <TodoList
+                todos={state.todos}
+                onComplete={_onCompleteTodo}
+                onDelete={_onDeleteTodo}
+              />
             </div>
           </div>
         </div>
       </div>
-    );
-  }
-}
-
-export default App;
+    </div>
+  );
+};
