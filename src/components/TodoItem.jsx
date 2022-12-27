@@ -1,58 +1,53 @@
 import React from "react";
 
-class TodoItem extends React.Component {
-  constructor(props) {
-    super(props);
+export const TodoItem = ({ id, onComplete, complete, title, onDelete }) => {
+  const handleDelete = () => {
+    onDelete(id);
+  };
 
-    this._onCompleteCheck = this._onCompleteCheck.bind(this);
-  }
-
-  _onCompleteCheck(event) {
-    const { id, onComplete } = this.props;
-
+  const handleChange = () => {
     onComplete(id);
-  }
+  };
 
-  _renderCheckbox() {
-    const { complete } = this.props;
-    const attrs = {};
-
-    if (complete) {
-      attrs.checked = "checked";
-    }
-
+  const renderCheckbox = () => {
     return (
       <div className="col-2 todo-item__checkbox">
         <input
           type="checkbox"
           className="form-control"
-          onChange={this._onCompleteCheck}
-          {...attrs}
+          data-testid={id}
+          onChange={handleChange}
+          checked={complete || false}
         />
       </div>
     );
-  }
+  };
 
-  _renderTitle() {
-    const { title } = this.props;
+  const renderTitle = () => (
+    <div className="col-8 todo-item__title">
+      <h3>{title}</h3>
+    </div>
+  );
 
-    return (
-      <div className="col-10 todo-item__title">
-        <h3>{title}</h3>
+  const renderDeleteButton = () => (
+    <div className="col-2 todo-item__title">
+      <button
+        className="btn btn-primary"
+        data-testid={`delete-${id}`}
+        onClick={handleDelete}
+      >
+        Delete
+      </button>
+    </div>
+  );
+
+  return (
+    <li className="list-group-item todo-item">
+      <div className="row">
+        {renderCheckbox()}
+        {renderTitle()}
+        {renderDeleteButton()}
       </div>
-    );
-  }
-
-  render() {
-    return (
-      <li className="list-group-item todo-item">
-        <div className="row">
-          {this._renderCheckbox()}
-          {this._renderTitle()}
-        </div>
-      </li>
-    );
-  }
-}
-
-export default TodoItem;
+    </li>
+  );
+};
